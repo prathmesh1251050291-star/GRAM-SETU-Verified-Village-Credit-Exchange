@@ -8,3 +8,23 @@ GRAM-SETU is an offline-first AI platform bridging rural MSMEs and formal bank c
 - Backend aggregate-only Mongoose schema: `backend/models/CreditAssessment.js`
 - Backend offline batch sync endpoint with timestamp conflict resolution: `backend/routes/syncBatch.js`
 - High-performance Monte-Carlo simulation (C++): `cplusplus/monte_carlo_risk.cpp`
+
+## Render deployment
+
+This repository now includes a Render Blueprint file (`render.yaml`) and a production backend entrypoint (`backend/server.js`) so it can be deployed as a Node web service.
+
+### Required environment variables
+
+- `MONGODB_URI`: MongoDB connection string used by the backend service.
+
+### Local startup
+
+```bash
+npm install
+npm start
+```
+
+The service exposes:
+
+- `POST /api/sync/micro-enterprises` for offline batch sync
+- `GET /healthz` for health checks
