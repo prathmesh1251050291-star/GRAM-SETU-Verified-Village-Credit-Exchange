@@ -1,386 +1,113 @@
-# Client1
+# GRAM-SETU: Verified Village Credit Exchange
 
-> A production-ready full-stack website template with authentication, backend architecture, database integration, testing, and modern development best practices.
+**GRAM-SETU** is an offline-first, AI-assisted platform designed to bridge the credit gap between rural micro-enterprises (SHGs, MSMEs) and formal banking institutions. It empowers Field Officers to track, verify, and grade financial resilience at the village level, ultimately automating bank credit linkage appraisals.
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Node.js](https://img.shields.io/badge/Node.js-20+-green.svg)
-![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)
-![JWT](https://img.shields.io/badge/Auth-JWT-orange.svg)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Ready-blue.svg)
 
 ---
 
-## Overview
+## 🌟 Key Features
 
-**Client1** is a reusable starter template designed for rapidly building secure, scalable, and maintainable web applications.
-
-Instead of rebuilding authentication, backend structure, database configuration, validation, and testing for every project, this template provides a solid foundation that can be customized for any application.
-
-Whether you're building a SaaS product, admin dashboard, portfolio, business website, CRM, ERP, or internal tool, this template helps you get started quickly.
-
----
-
-# Features
-
-## Authentication
-
-- JWT Authentication
-- Login & Logout
-- Protected Routes
-- Password Hashing
-- Authentication Middleware
-- User Session Validation
-- Role-based Authorization (easy to extend)
+- **Offline-First Data Sync**: Field officers can log ledger entries offline. Background Service Workers and IndexedDB automatically cache the data and securely sync it to the cloud when an internet connection is restored.
+- **AI-Powered Risk Alerts**: Text-to-speech enabled risk alerts provide accessible financial advice and cash flow warnings for rural enterprises (e.g. Dairy, Poultry, Retail).
+- **Enterprise Dashboard**: A clean, accessible view for enterprise owners to monitor their cash flow, resilience score, and risk bands.
+- **Field Officer Console**: Track, review, and filter portfolios of Self Help Groups (SHGs) and businesses across assigned villages.
+- **Automated Credit Readiness**: Aggregate village pooled corpus and instantly generate a Bank Appraisal Packet for NABARD grading and formal credit linkage.
 
 ---
 
-## Backend
+## 🏗️ Tech Stack
 
-- Modular architecture
-- REST API
-- Clean folder structure
-- Controllers
-- Services
-- Middleware
-- Route separation
-- Environment configuration
-- Error handling
-- Logging support
-- API versioning ready
+- **Frontend**: HTML5, Vanilla JavaScript, TailwindCSS, Service Workers (PWA offline sync).
+- **Backend**: Node.js, Express.js.
+- **Database**: PostgreSQL (pg pool), configured for secure remote connections.
+- **Security**: JWT-based session management, bcrypt password hashing, helmet, and CORS.
 
 ---
 
-## Database
+## 🚀 Deployment (Render.com)
 
-- Database integration
-- Schema-based design
-- Relationships
-- Migration ready
-- Seed support
-- ORM compatible
-- Connection pooling
-- Transactions support
+GRAM-SETU is pre-configured for simple deployment on [Render](https://render.com).
 
----
-
-## Validation
-
-- Request validation
-- Schema validation
-- Input sanitization
-- Type-safe models
-- Error responses
+1. **Database**: Create a new PostgreSQL database on Render. Copy the provided `Internal Database URL`.
+2. **Web Service**: Deploy this repository as a new Web Service.
+   - **Root Directory**: `backend`
+   - **Environment**: `Node`
+   - **Build Command**: `npm install`
+   - **Start Command**: `npm start`
+3. **Environment Variables**: Add the following to your Render Web Service:
+   - `DATABASE_URL`: Your Render PostgreSQL URL
+   - `JWT_SECRET`: A secure, long random string for authentication tokens.
 
 ---
 
-## Security
+## 💻 Local Development Setup
 
-- JWT Authentication
-- Password hashing
-- Secure HTTP headers
-- Environment variable support
-- Input validation
-- SQL/NoSQL Injection prevention
-- XSS protection
-- CORS configuration
-- Secure middleware
-- Rate limiting ready
-
----
-
-## Testing
-
-- Unit Tests
-- Integration Tests
-- API Testing
-- Mock support
-- Coverage reports
-
----
-
-## Developer Experience
-
-- TypeScript support
-- ESLint
-- Prettier
-- Modular architecture
-- Reusable components
-- Environment configuration
-- Easy deployment
-- Scalable folder structure
-
----
-
-# Project Structure
-
-```
-Client1/
-│
-├── backend/
-│   ├── controllers/
-│   ├── middleware/
-│   ├── models/
-│   ├── routes/
-│   ├── services/
-│   ├── schemas/
-│   ├── utils/
-│   ├── config/
-│   └── tests/
-│
-├── frontend/
-│   ├── components/
-│   ├── pages/
-│   ├── hooks/
-│   ├── services/
-│   └── assets/
-│
-├── shared/
-│
-├── docs/
-│
-├── .env.example
-├── package.json
-└── README.md
-```
-
----
-
-# Tech Stack
-
-### Frontend
-
-- HTML5
-- CSS3
-- JavaScript / TypeScript
-- React (optional)
-
-### Backend
-
-- Node.js
-- Express.js
-
-### Database
-
-- MongoDB / PostgreSQL (configurable)
-
-### Authentication
-
-- JWT
-- bcrypt
-
-### Validation
-
-- Zod / Joi / Express Validator
-
-### Testing
-
-- Jest
-- Supertest
-
----
-
-# Getting Started
-
-## Clone Repository
-
+### 1. Clone the repository
 ```bash
-git clone https://github.com/pranitdhanade-sys/Client1.git
+git clone https://github.com/prathmesh1251050291-star/GRAM-SETU-Verified-Village-Credit-Exchange.git
+cd GRAM-SETU-Verified-Village-Credit-Exchange/backend
 ```
 
----
-
-## Install Dependencies
-
+### 2. Install dependencies
 ```bash
 npm install
 ```
 
----
-
-## Configure Environment
-
-Create a `.env` file.
-
-Example:
-
+### 3. Configure Environment
+Create a `.env` file in the `backend/` directory:
 ```env
 PORT=5000
 
-DATABASE_URL=
+# Database Configuration (Local)
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=root
+DB_NAME=gram_setu
 
-JWT_SECRET=
+# Or use a single connection string:
+# DATABASE_URL=postgres://postgres:root@localhost:5432/gram_setu
 
-JWT_EXPIRES_IN=7d
-
+JWT_SECRET=supersecretkey
 NODE_ENV=development
 ```
 
----
+### 4. Initialize Database
+Execute the SQL script located at `Database/schema.sql` in your PostgreSQL instance to create the necessary tables (`users`, `sessions`, etc.).
 
-## Start Development
-
+### 5. Start the Server
 ```bash
 npm run dev
 ```
+The application will be running at `http://localhost:5000`.
 
 ---
 
-## Production
+## 📂 Project Structure
 
-```bash
-npm run build
-
-npm start
+```
+GRAM-SETU/
+│
+├── backend/
+│   ├── routes/          # API Routes (Auth, Sync)
+│   ├── db.js            # PostgreSQL Connection Pool
+│   ├── server.js        # Express Server & Static File routing
+│   └── package.json     
+│
+├── frontend/
+│   ├── public/          # HTML Views (Dashboard, Login, Signup)
+│   ├── offlineSync.js   # IndexedDB & Background Sync Logic
+│   ├── service-worker.js# PWA Service Worker
+│   └── css/             # Stylesheets
+│
+├── Database/
+│   └── schema.sql       # SQL Table Definitions
+│
+└── README.md
 ```
 
 ---
-
-# Testing
-
-Run all tests:
-
-```bash
-npm test
-```
-
-Coverage:
-
-```bash
-npm run test:coverage
-```
-
----
-
-# API Features
-
-- User Registration
-- User Login
-- Refresh Tokens (optional)
-- Logout
-- Protected Endpoints
-- Profile Management
-- CRUD APIs
-- Error Responses
-- Validation
-
----
-
-# Environment Variables
-
-| Variable | Description |
-|----------|-------------|
-| PORT | Application port |
-| DATABASE_URL | Database connection string |
-| JWT_SECRET | JWT signing key |
-| JWT_EXPIRES_IN | Token expiration |
-| NODE_ENV | Environment |
-
----
-
-# Security
-
-This template follows modern security practices including:
-
-- Password hashing
-- JWT authentication
-- Environment variables
-- Secure middleware
-- Request validation
-- Authorization middleware
-- Protected routes
-- Error handling
-- Dependency management
-
-For reporting vulnerabilities, see [SECURITY.md](SECURITY.md).
-
----
-
-# Customization
-
-This template is designed to be extended easily.
-
-You can customize:
-
-- Authentication
-- Database
-- User roles
-- Permissions
-- API routes
-- Frontend
-- Admin panel
-- File uploads
-- Email services
-- Payments
-- Third-party integrations
-
----
-
-# Roadmap
-
-- OAuth Authentication
-- Two-Factor Authentication (2FA)
-- Email Verification
-- Password Reset
-- File Uploads
-- Docker Support
-- CI/CD
-- OpenAPI Documentation
-- WebSockets
-- Background Jobs
-- Caching
-- Multi-tenancy
-
----
-
-# Contributing
-
-Contributions are welcome!
-
-Please read:
-
-- `CONTRIBUTING.md`
-- `CODE_OF_CONDUCT.md`
-- `SECURITY.md`
-
-before opening issues or pull requests.
-
----
-
-# License
-
-This project is licensed under the MIT License.
-
----
-
-# Author
-
-**Pranit Dhanade**
-
-GitHub: https://github.com/pranitdhanade-sys
-
----
-
-## Why use this template?
-
-✅ Production-ready structure
-
-✅ Authentication included
-
-✅ Backend architecture
-
-✅ Database integration
-
-✅ Schema validation
-
-✅ JWT authentication
-
-✅ Testing setup
-
-✅ Scalable folder structure
-
-✅ Secure by default
-
-✅ Easy to customize
-
----
-
-Made with ❤️ to accelerate modern full-stack web development.
+*Built to accelerate financial inclusion and resilience for rural enterprises.*
