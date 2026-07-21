@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="/css/login.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <main class="auth-shell">
+        <section class="auth-card" aria-labelledby="login-title">
+            <div class="brand">VIOLET</div>
+            <h1 id="login-title">Welcome back</h1>
+            <p class="subtitle">Login to continue to your workspace.</p>
+
+            <form id="loginForm" class="auth-form">
+                <label for="email">Email address</label>
+                <input id="email" name="email" type="email" autocomplete="email" required>
+
+                <label for="password">Password</label>
+                <input id="password" name="password" type="password" autocomplete="current-password" required>
+
+                <p id="message" class="form-message" role="status" aria-live="polite"></p>
+
+                <button type="submit">Login</button>
+            </form>
+
+            <p class="footer-text">
+                Do not have an account?
+                <a href="/signup">Sign up</a>
+            </p>
+        </section>
+    </main>
+
+    <script>
+        const form = document.getElementById("loginForm");
+        const message = document.getElementById("message");
+
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            message.textContent = "Logging in...";
+            message.className = "form-message";
+
+            const payload = {
+                email: form.email.value.trim(),
+                password: form.password.value
+            };
+
+            try {
+                const response = await fetch("/api/auth/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || "Login failed");
+                }
+
+                localStorage.setItem("authToken", data.token);
+                localStorage.setItem("authUser", JSON.stringify(data.user));
+                message.textContent = "Login successful.";
+                message.classList.add("success");
+                window.location.href = "/dashboard";
+            } catch (error) {
+                message.textContent = error.message;
+                message.classList.add("error");
+            }
+        });
+    </script>
+</body>
+</html>

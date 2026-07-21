@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GRAM-SETU Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            forest: '#0f4c3a',
+                            forestLight: '#187a5d',
+                            slate: '#475569',
+                            slateDark: '#1e293b',
+                            amber: '#f59e0b',
+                            amberLight: '#fef3c7',
+                            bg: '#f8fafc',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; }
+        .tab-content { display: none; opacity: 0; transition: opacity 0.3s ease-in-out; }
+        .tab-content.active { display: block; opacity: 1; }
+        .nav-link.active { background-color: #0f4c3a; color: white; }
+        .nav-link { transition: all 0.2s ease-in-out; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden antialiased">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between hidden md:flex">
+        <div>
+            <div class="p-6">
+                <h1 class="text-2xl font-bold text-brand-forest flex items-center gap-2">
+                    <i class="ph-fill ph-plant"></i> GRAM-SETU
+                </h1>
+                <p class="text-xs text-slate-500 mt-1">Rural Finance AI</p>
+            </div>
+            <nav class="px-4 space-y-2 mt-4">
+                <button onclick="switchTab('enterprise')" id="nav-enterprise" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-left font-medium text-brand-slate hover:bg-slate-100 hover:text-brand-forest rounded-lg">
+                    <i class="ph ph-storefront text-xl"></i> Enterprise View
+                </button>
+                <button onclick="switchTab('officer')" id="nav-officer" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-left font-medium text-brand-slate hover:bg-slate-100 hover:text-brand-forest rounded-lg">
+                    <i class="ph ph-users-three text-xl"></i> Field Officer
+                </button>
+                <button onclick="switchTab('village')" id="nav-village" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-left font-medium text-brand-slate hover:bg-slate-100 hover:text-brand-forest rounded-lg">
+                    <i class="ph ph-map-trifold text-xl"></i> Village Pool
+                </button>
+            </nav>
+        </div>
+        
+        <!-- Offline Badge in Sidebar for Mobile/Bottom -->
+        <div class="p-4 border-t border-slate-200">
+            <div class="flex items-center gap-2 bg-green-50 text-green-700 px-3 py-2 rounded-md text-xs font-semibold">
+                <span class="relative flex h-2 w-2">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                </span>
+                Offline-Ready: IndexedDB Active
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col h-screen overflow-hidden relative">
+        <!-- Header for Mobile -->
+        <header class="md:hidden bg-white border-b border-slate-200 p-4 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-brand-forest flex items-center gap-2">
+                <i class="ph-fill ph-plant"></i> GRAM-SETU
+            </h1>
+            <button id="mobile-menu-btn" class="text-slate-600"><i class="ph ph-list text-2xl"></i></button>
+        </header>
+        
+        <!-- Mobile Menu Overlay (hidden by default) -->
+        <div id="mobile-menu" class="hidden absolute inset-0 z-50 bg-white flex-col">
+            <div class="p-4 flex justify-between items-center border-b border-slate-100">
+                <h1 class="text-xl font-bold text-brand-forest flex items-center gap-2">
+                    <i class="ph-fill ph-plant"></i> GRAM-SETU
+                </h1>
+                <button id="close-menu-btn" class="text-slate-600"><i class="ph ph-x text-2xl"></i></button>
+            </div>
+             <nav class="px-4 space-y-2 mt-4 flex-1">
+                <button onclick="switchTab('enterprise'); closeMenu()" class="w-full flex items-center gap-3 px-4 py-3 text-left font-medium text-brand-forest bg-slate-50 rounded-lg">
+                    <i class="ph ph-storefront text-xl"></i> Enterprise View
+                </button>
+                <button onclick="switchTab('officer'); closeMenu()" class="w-full flex items-center gap-3 px-4 py-3 text-left font-medium text-slate-600 hover:bg-slate-50 rounded-lg">
+                    <i class="ph ph-users-three text-xl"></i> Field Officer
+                </button>
+                <button onclick="switchTab('village'); closeMenu()" class="w-full flex items-center gap-3 px-4 py-3 text-left font-medium text-slate-600 hover:bg-slate-50 rounded-lg">
+                    <i class="ph ph-map-trifold text-xl"></i> Village Pool
+                </button>
+            </nav>
+            <div class="p-4">
+                <div class="flex items-center gap-2 bg-green-50 text-green-700 px-3 py-2 rounded-md text-xs font-semibold justify-center">
+                    <span class="relative flex h-2 w-2">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                    </span>
+                    Offline-Ready
+                </div>
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-4 md:p-10 bg-brand-bg">
+            <!-- 1. Enterprise App View -->
+            <div id="tab-enterprise" class="tab-content active max-w-5xl mx-auto space-y-6">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 md:mb-8">
+                    <div>
+                        <h2 class="text-2xl font-bold text-brand-slateDark">My Enterprise Dashboard</h2>
+                        <p class="text-slate-500 text-sm mt-1">Track your business health and cash flow.</p>
+                    </div>
+                    <div class="flex items-center gap-2 bg-white p-2 rounded-xl shadow-sm border border-slate-100">
+                        <label for="sector-selector" class="text-sm font-medium text-slate-600 pl-2">Sector:</label>
+                        <select id="sector-selector" onchange="updateSectorMetrics()" class="bg-slate-50 border-none text-brand-slateDark text-sm rounded-lg focus:ring-brand-forest focus:border-brand-forest block p-2 outline-none cursor-pointer font-medium">
+                            <option value="dairy">Dairy Farming</option>
+                            <option value="poultry">Poultry</option>
+                            <option value="retail">Retail Kirana</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Top Row: Score & Alert -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Resilience Score Card -->
+                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col items-center justify-center relative overflow-hidden group">
+                        <div class="absolute inset-0 bg-gradient-to-br from-brand-forest/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">Resilience Score</h3>
+                        <div class="relative flex items-center justify-center">
+                            <!-- SVG Gauge -->
+                            <svg class="w-32 h-32 transform -rotate-90">
+                                <circle cx="64" cy="64" r="56" stroke="currentColor" stroke-width="12" fill="transparent" class="text-slate-100" />
+                                <circle id="score-circle" cx="64" cy="64" r="56" stroke="currentColor" stroke-width="12" fill="transparent" stroke-dasharray="351" stroke-dashoffset="91" class="text-brand-forest transition-all duration-1000 ease-out" />
+                            </svg>
+                            <div class="absolute flex flex-col items-center">
+                                <span id="score-value" class="text-3xl font-bold text-brand-slateDark">74</span>
+                                <span id="score-status" class="text-xs font-bold text-brand-forest mt-1 uppercase tracking-wider">Stable</span>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-6 text-center">Based on last 3 months cash flow trends</p>
+                    </div>
+
+                    <!-- Risk Alert Card -->
+                    <div class="lg:col-span-2 bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-6 md:p-8 shadow-sm border border-amber-200 flex flex-col justify-between">
+                        <div>
+                            <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
+                                <div class="flex items-center gap-3 text-brand-amber">
+                                    <div class="bg-white p-2 rounded-full shadow-sm">
+                                        <i class="ph-fill ph-warning-circle text-2xl"></i>
+                                    </div>
+                                    <h3 class="font-bold text-lg text-amber-900">Cash Flow Alert</h3>
+                                </div>
+                                <button onclick="playAlertAudio()" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-full px-4 py-2 text-sm font-semibold flex items-center gap-2 shadow-sm transition-all transform hover:scale-105 active:scale-95 w-fit">
+                                    <i class="ph-fill ph-speaker-high text-brand-forest"></i> Listen in Local
+                                </button>
+                            </div>
+                            <p id="alert-text" class="text-amber-950 text-lg md:text-xl leading-relaxed font-medium mt-2">
+                                "Your feed expenses have risen by 12% this week. Consider adjusting your next purchase order to maintain positive cash flow."
+                            </p>
+                        </div>
+                        <div class="mt-6 flex gap-3">
+                            <button class="px-5 py-2.5 bg-brand-amber text-white text-sm font-semibold rounded-xl shadow-sm hover:bg-amber-600 transition-colors">Take Action</button>
+                            <button class="px-5 py-2.5 bg-white/80 text-amber-900 text-sm font-semibold rounded-xl shadow-sm border border-amber-200 hover:bg-white transition-colors">Dismiss</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ledger Form -->
+                <div class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-slate-100">
+                    <h3 class="text-lg font-bold text-brand-slateDark mb-6 flex items-center gap-2 border-b border-slate-100 pb-4">
+                        <i class="ph-fill ph-receipt text-brand-forest text-xl"></i> Quick Ledger Entry
+                    </h3>
+                    <form onsubmit="submitLedger(event)" class="grid grid-cols-1 md:grid-cols-12 gap-5 items-end">
+                        <div class="md:col-span-3">
+                            <label class="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wide">Type</label>
+                            <div class="relative">
+                                <select class="w-full appearance-none border border-slate-200 rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-brand-forest/20 focus:border-brand-forest outline-none bg-slate-50 cursor-pointer">
+                                    <option value="income">Income (+)</option>
+                                    <option value="expense">Expense (-)</option>
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-500">
+                                    <i class="ph ph-caret-down"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="md:col-span-3">
+                            <label class="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wide">Amount (₹)</label>
+                            <input type="number" placeholder="e.g. 5000" class="w-full border border-slate-200 rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-brand-forest/20 focus:border-brand-forest outline-none bg-slate-50 transition-all" required>
+                        </div>
+                        <div class="md:col-span-4">
+                            <label class="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wide">Description</label>
+                            <input type="text" placeholder="e.g. Morning Milk Collection" class="w-full border border-slate-200 rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-brand-forest/20 focus:border-brand-forest outline-none bg-slate-50 transition-all" required>
+                        </div>
+                        <div class="md:col-span-2">
+                            <button type="submit" class="w-full bg-brand-forest hover:bg-brand-forestLight text-white font-semibold rounded-xl p-3 text-sm transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2 shadow-md hover:shadow-lg">
+                                <i class="ph-bold ph-plus"></i> Save
+                            </button>
+                        </div>
+                    </form>
+                    <div id="ledger-success" class="hidden mt-6 text-sm text-brand-forest flex items-center gap-2 bg-green-50/80 p-3 rounded-xl border border-green-100 font-medium">
+                        <i class="ph-fill ph-check-circle text-lg"></i> Entry saved securely offline! It will sync automatically when you are connected.
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Field Officer Console -->
+            <div id="tab-officer" class="tab-content max-w-6xl mx-auto space-y-6">
+                <div class="mb-4 md:mb-8">
+                    <h2 class="text-2xl font-bold text-brand-slateDark">Field Officer Portfolio</h2>
+                    <p class="text-slate-500 text-sm mt-1">Monitor SHGs and MSMEs across your assigned villages.</p>
+                </div>
+
+                <!-- Summary Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 relative overflow-hidden group">
+                        <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-brand-slate"></div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Total Active SHGs</p>
+                                <p class="text-4xl font-bold text-brand-slateDark mt-2">42</p>
+                            </div>
+                            <div class="bg-slate-50 p-4 rounded-2xl text-brand-slate group-hover:bg-slate-100 transition-colors">
+                                <i class="ph-fill ph-users-three text-3xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 relative overflow-hidden group">
+                        <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-brand-forest"></div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Healthy Portfolios</p>
+                                <p class="text-4xl font-bold text-brand-slateDark mt-2">36</p>
+                            </div>
+                            <div class="bg-green-50 p-4 rounded-2xl text-brand-forest group-hover:bg-green-100 transition-colors">
+                                <i class="ph-fill ph-check-circle text-3xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 relative overflow-hidden group">
+                        <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-brand-amber"></div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-semibold text-slate-500 uppercase tracking-wide">High Risk / Watch</p>
+                                <p class="text-4xl font-bold text-brand-slateDark mt-2">6</p>
+                            </div>
+                            <div class="bg-amber-50 p-4 rounded-2xl text-brand-amber group-hover:bg-amber-100 transition-colors">
+                                <i class="ph-fill ph-warning-circle text-3xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Portfolio Table -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col">
+                    <div class="p-6 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4 bg-slate-50/50">
+                        <h3 class="text-lg font-bold text-brand-slateDark flex items-center gap-2">
+                            <i class="ph-fill ph-table text-slate-400"></i> Village Portfolio Status
+                        </h3>
+                        <div class="flex gap-3 w-full sm:w-auto">
+                            <div class="relative flex-1 sm:w-64">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="ph ph-magnifying-glass text-slate-400"></i>
+                                </div>
+                                <input type="text" id="table-search" placeholder="Search village or group..." class="w-full border border-slate-200 rounded-xl pl-10 pr-3 py-2 text-sm font-medium focus:ring-2 focus:ring-brand-forest/20 focus:border-brand-forest outline-none bg-white">
+                            </div>
+                            <select id="table-filter" class="border border-slate-200 rounded-xl px-3 py-2 text-sm font-medium focus:ring-2 focus:ring-brand-forest/20 focus:border-brand-forest outline-none bg-white cursor-pointer">
+                                <option value="all">All Risks</option>
+                                <option value="healthy">Healthy</option>
+                                <option value="watch">Watch</option>
+                                <option value="critical">Critical</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm whitespace-nowrap">
+                            <thead class="bg-white text-slate-500 uppercase text-xs font-bold tracking-wider border-b border-slate-100">
+                                <tr>
+                                    <th class="px-6 py-4">Village / Group</th>
+                                    <th class="px-6 py-4">Members</th>
+                                    <th class="px-6 py-4">Avg. Score</th>
+                                    <th class="px-6 py-4">Risk Band</th>
+                                    <th class="px-6 py-4 text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="portfolio-table" class="divide-y divide-slate-100 bg-white">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="p-4 border-t border-slate-100 bg-slate-50 flex justify-between items-center text-sm text-slate-500">
+                        <span>Showing <span class="font-semibold text-slate-700">1</span> to <span class="font-semibold text-slate-700" id="table-count">6</span> entries</span>
+                        <div class="flex gap-1">
+                            <button class="px-3 py-1 rounded bg-white border border-slate-200 text-slate-400 cursor-not-allowed">Prev</button>
+                            <button class="px-3 py-1 rounded bg-brand-forest text-white font-medium shadow-sm">1</button>
+                            <button class="px-3 py-1 rounded bg-white border border-slate-200 hover:bg-slate-50 font-medium">Next</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Village Pool & Graduation Pathway -->
+            <div id="tab-village" class="tab-content max-w-5xl mx-auto space-y-6">
+                <div class="mb-4 md:mb-8">
+                    <h2 class="text-2xl font-bold text-brand-slateDark">Village Pool & Graduation</h2>
+                    <p class="text-slate-500 text-sm mt-1">Aggregate corpus view and formal credit linkage readiness.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- Aggregate Corpus View -->
+                    <div class="lg:col-span-7 bg-white rounded-3xl p-8 shadow-sm border border-slate-100 relative overflow-hidden flex flex-col">
+                        <div class="absolute top-0 right-0 p-6 z-10">
+                            <span class="inline-flex items-center gap-1.5 bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 text-sm font-bold px-4 py-1.5 rounded-full border border-green-200 shadow-sm">
+                                <i class="ph-fill ph-medal text-brand-forest text-lg"></i> Grade A
+                            </span>
+                        </div>
+                        
+                        <div class="flex items-center gap-3 mb-8">
+                            <div class="bg-brand-forest/10 p-3 rounded-2xl">
+                                <i class="ph-fill ph-bank text-brand-forest text-2xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-brand-slateDark">SHG "Mahila Shakti"</h3>
+                                <p class="text-sm text-slate-500 font-medium">Sitapur Village • 15 Members</p>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-8 flex-1">
+                            <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100 relative overflow-hidden">
+                                <div class="absolute -right-6 -bottom-6 opacity-10">
+                                    <i class="ph-fill ph-coins text-9xl text-brand-forest"></i>
+                                </div>
+                                <p class="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-2">Total Pooled Corpus</p>
+                                <p class="text-5xl font-bold text-brand-slateDark font-mono tracking-tight">₹4,50,000</p>
+                                <p class="text-sm font-medium text-green-600 mt-2 flex items-center gap-1">
+                                    <i class="ph-bold ph-trend-up"></i> +12% from last quarter
+                                </p>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-5">
+                                <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                                    <div class="flex items-center gap-2 mb-2 text-slate-500">
+                                        <i class="ph-fill ph-hand-coins text-lg"></i>
+                                        <p class="text-xs font-bold uppercase tracking-wide">Internal Lending</p>
+                                    </div>
+                                    <p class="text-2xl font-bold text-brand-slateDark">₹2,10,000</p>
+                                    <p class="text-xs text-slate-400 mt-1 font-medium">Active loans to members</p>
+                                </div>
+                                <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                                    <div class="flex items-center gap-2 mb-2 text-slate-500">
+                                        <i class="ph-fill ph-chart-line-up text-lg"></i>
+                                        <p class="text-xs font-bold uppercase tracking-wide">Repayment Rate</p>
+                                    </div>
+                                    <p class="text-2xl font-bold text-brand-forest">98.5%</p>
+                                    <p class="text-xs text-slate-400 mt-1 font-medium">Exceptional standing</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-8 pt-6 border-t border-slate-100">
+                            <div class="flex justify-between items-end mb-3">
+                                <div>
+                                    <span class="block font-bold text-slate-700 text-sm">NABARD Grading Criteria</span>
+                                    <span class="block text-xs text-slate-500 mt-0.5">Meeting regularity, savings, book-keeping</span>
+                                </div>
+                                <span class="font-black text-brand-forest text-lg">100%</span>
+                            </div>
+                            <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+                                <div class="bg-gradient-to-r from-brand-forest to-emerald-400 h-full rounded-full w-full relative">
+                                    <div class="absolute inset-0 bg-white/20" style="background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.2) 10px, rgba(255,255,255,0.2) 20px);"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bank Credit Readiness Appraisal Packet -->
+                    <div class="lg:col-span-5 bg-brand-slateDark rounded-3xl p-8 shadow-lg border border-slate-700 text-white flex flex-col relative overflow-hidden">
+                        <!-- Decorative background element -->
+                        <div class="absolute -top-24 -right-24 w-64 h-64 bg-brand-forest rounded-full opacity-20 blur-3xl pointer-events-none"></div>
+
+                        <div class="flex items-start justify-between mb-8 relative z-10">
+                            <div>
+                                <h3 class="text-xl font-bold flex items-center gap-2">
+                                    <i class="ph-fill ph-file-text text-brand-amber"></i> Appraisal Packet
+                                </h3>
+                                <p class="text-slate-400 text-sm mt-1 font-medium">Auto-compiled for Bank Linkage</p>
+                            </div>
+                            <span class="inline-flex items-center gap-1.5 bg-brand-amber text-amber-950 text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm">
+                                <span class="relative flex h-2 w-2">
+                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-600 opacity-75"></span>
+                                    <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-800"></span>
+                                </span>
+                                Ready Now
+                            </span>
+                        </div>
+
+                        <div class="flex-1 space-y-4 relative z-10">
+                            <div class="flex items-center gap-4 p-4 bg-slate-800/50 rounded-2xl border border-slate-700 backdrop-blur-sm">
+                                <div class="bg-brand-forest p-2.5 rounded-xl text-white shadow-inner"><i class="ph-bold ph-check text-xl"></i></div>
+                                <div>
+                                    <p class="text-sm font-bold text-slate-100">6 Months Meeting Minutes</p>
+                                    <p class="text-xs text-slate-400 mt-0.5 font-medium">Verified & Digitized</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4 p-4 bg-slate-800/50 rounded-2xl border border-slate-700 backdrop-blur-sm">
+                                <div class="bg-brand-forest p-2.5 rounded-xl text-white shadow-inner"><i class="ph-bold ph-check text-xl"></i></div>
+                                <div>
+                                    <p class="text-sm font-bold text-slate-100">Financial Ledger Audit</p>
+                                    <p class="text-xs text-slate-400 mt-0.5 font-medium">Passed via AI Reconciliation</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4 p-4 bg-slate-800/50 rounded-2xl border border-slate-700 backdrop-blur-sm">
+                                <div class="bg-brand-forest p-2.5 rounded-xl text-white shadow-inner"><i class="ph-bold ph-check text-xl"></i></div>
+                                <div>
+                                    <p class="text-sm font-bold text-slate-100">Member KYC Status</p>
+                                    <p class="text-xs text-slate-400 mt-0.5 font-medium">15/15 Aadhaar Verified</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="w-full mt-8 bg-brand-amber hover:bg-amber-400 text-amber-950 font-bold rounded-2xl py-4 text-sm transition-all transform hover:-translate-y-1 shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 relative z-10">
+                            <i class="ph-bold ph-export text-lg"></i> Generate Bank Packet (PDF)
+                        </button>
+                        <p class="text-center text-xs text-slate-500 mt-4 relative z-10 font-medium">Includes covering letter for Branch Manager</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // --- Navigation Logic ---
+        function switchTab(tabId) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            // Show selected tab
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+
+            // Update nav styles
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+                // reset styling classes for inactive
+                link.classList.add('text-brand-slate');
+                link.classList.remove('bg-brand-forest', 'text-white', 'hover:text-white', 'shadow-md');
+            });
+
+            // Set active nav styles
+            const activeNavs = document.querySelectorAll(`#nav-${tabId}`);
+            activeNavs.forEach(nav => {
+                nav.classList.add('active');
+                nav.classList.remove('text-brand-slate', 'hover:bg-slate-100', 'hover:text-brand-forest');
+                nav.classList.add('bg-brand-forest', 'text-white', 'shadow-md');
+            });
+        }
+
+        // Initialize first tab
+        document.getElementById('nav-enterprise').classList.add('bg-brand-forest', 'text-white', 'shadow-md');
+        document.getElementById('nav-enterprise').classList.remove('text-brand-slate');
+
+        // Mobile Menu Logic
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const closeMenuBtn = document.getElementById('close-menu-btn');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.remove('hidden');
+            mobileMenu.classList.add('flex');
+        });
+
+        closeMenuBtn.addEventListener('click', closeMenu);
+
+        function closeMenu() {
+            mobileMenu.classList.add('hidden');
+            mobileMenu.classList.remove('flex');
+        }
+
+        // --- Enterprise View Logic ---
+        const sectorData = {
+            dairy: { score: 74, status: 'Stable', alert: '"Your feed expenses have risen by 12% this week. Consider adjusting your next purchase order to maintain positive cash flow."' },
+            poultry: { score: 48, status: 'Critical', alert: '"Vaccination schedule is due next week. Ensure ₹2,000 is reserved immediately to prevent high flock mortality risks."' },
+            retail: { score: 88, status: 'Healthy', alert: '"Great sales this week! You have surplus cash. Consider restocking high-demand items before wholesale prices rise."' }
+        };
+
+        function updateSectorMetrics() {
+            const sector = document.getElementById('sector-selector').value;
+            const data = sectorData[sector];
+            
+            // Update Score
+            const scoreElement = document.getElementById('score-value');
+            const scoreCircle = document.getElementById('score-circle');
+            const statusElement = document.getElementById('score-status');
+
+            scoreElement.innerText = data.score;
+            statusElement.innerText = data.status;
+
+            // Animate Circle
+            const offset = 351 - (351 * data.score) / 100;
+            scoreCircle.style.strokeDashoffset = offset;
+
+            // Update Colors based on score
+            scoreCircle.classList.remove('text-brand-forest', 'text-brand-amber', 'text-red-500');
+            statusElement.classList.remove('text-brand-forest', 'text-brand-amber', 'text-red-500');
+            
+            if (data.score >= 70) {
+                scoreCircle.classList.add('text-brand-forest');
+                statusElement.classList.add('text-brand-forest');
+            } else if (data.score >= 50) {
+                scoreCircle.classList.add('text-brand-amber');
+                statusElement.classList.add('text-brand-amber');
+            } else {
+                scoreCircle.classList.add('text-red-500');
+                statusElement.classList.add('text-red-500');
+            }
+
+            // Update Alert Text
+            document.getElementById('alert-text').innerText = data.alert;
+        }
+
+        // Initialize score circle
+        setTimeout(updateSectorMetrics, 100);
+
+        function playAlertAudio() {
+            const text = document.getElementById('alert-text').innerText;
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 0.95;
+                utterance.pitch = 1.05;
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert("Text-to-speech not supported in this browser.");
+            }
+        }
+
+        function submitLedger(e) {
+            e.preventDefault();
+            const form = e.target;
+            const successMsg = document.getElementById('ledger-success');
+            
+            const type = form.querySelector('select').value;
+            const amount = form.querySelector('input[type="number"]').value;
+            const description = form.querySelectorAll('input[type="text"]')[0].value;
+            
+            window.dispatchEvent(new CustomEvent('submit-ledger', { 
+                detail: { type, amount, description, form, successMsg } 
+            }));
+        }
+
+        // --- Field Officer Logic ---
+        const portfolioData = [
+            { village: 'Rampur SHG Alpha', members: 12, score: 85, band: 'healthy' },
+            { village: 'Rampur SHG Beta', members: 10, score: 72, band: 'healthy' },
+            { village: 'Palghar Farmers Grp', members: 15, score: 58, band: 'watch' },
+            { village: 'Malkapur Dairy Coop', members: 8, score: 45, band: 'critical' },
+            { village: 'Sitapur Weavers', members: 20, score: 92, band: 'healthy' },
+            { village: 'Palghar Retail Hub', members: 5, score: 65, band: 'watch' },
+        ];
+
+        function renderTable(data) {
+            const tbody = document.getElementById('portfolio-table');
+            const countSpan = document.getElementById('table-count');
+            tbody.innerHTML = '';
+            
+            data.forEach(row => {
+                let badgeClass = '';
+                let badgeText = '';
+                
+                if (row.band === 'healthy') {
+                    badgeClass = 'bg-green-100 text-green-800 border-green-200';
+                    badgeText = '<i class="ph-fill ph-check-circle mr-1"></i> Healthy';
+                } else if (row.band === 'watch') {
+                    badgeClass = 'bg-amber-100 text-amber-800 border-amber-200';
+                    badgeText = '<i class="ph-fill ph-warning mr-1"></i> Watch';
+                } else {
+                    badgeClass = 'bg-red-100 text-red-800 border-red-200';
+                    badgeText = '<i class="ph-fill ph-warning-octagon mr-1"></i> Critical';
+                }
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 transition-colors group';
+                tr.innerHTML = `
+                    <td class="px-6 py-4 font-bold text-brand-slateDark">${row.village}</td>
+                    <td class="px-6 py-4 font-medium text-slate-500">${row.members}</td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-slate-700">${row.score}</span>
+                            <span class="text-xs text-slate-400">/100</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold border ${badgeClass}">
+                            ${badgeText}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        <button class="text-brand-forest hover:text-brand-forestLight font-bold text-sm inline-flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                            Review <i class="ph-bold ph-caret-right"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            countSpan.innerText = data.length;
+        }
+
+        // Initial table render
+        renderTable(portfolioData);
+
+        // Search & Filter Logic
+        const searchInput = document.getElementById('table-search');
+        const filterSelect = document.getElementById('table-filter');
+
+        function filterTable() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const filterValue = filterSelect.value;
+
+            const filteredData = portfolioData.filter(row => {
+                const matchesSearch = row.village.toLowerCase().includes(searchTerm);
+                const matchesFilter = filterValue === 'all' || row.band === filterValue;
+                return matchesSearch && matchesFilter;
+            });
+
+            renderTable(filteredData);
+        }
+
+        searchInput.addEventListener('input', filterTable);
+        filterSelect.addEventListener('change', filterTable);
+
+    </script>
+    <script type="module">
+        import { submitFinancialInput, setupOnlineSyncListener, registerFinancialSyncServiceWorker } from '/offlineSync.js';
+        
+        registerFinancialSyncServiceWorker({
+            serviceWorkerPath: '/service-worker.js'
+        });
+        
+        setupOnlineSyncListener();
+
+        window.addEventListener('submit-ledger', async (e) => {
+            const { type, amount, description, form, successMsg } = e.detail;
+            const payload = { type, amount, description, timestamp: new Date().toISOString() };
+            
+            const result = await submitFinancialInput(payload);
+            
+            if (result.mode === 'cached' || result.mode === 'cached_fallback') {
+                successMsg.innerHTML = '<i class="ph-fill ph-check-circle text-lg"></i> Entry saved securely offline! It will sync automatically when you are connected.';
+            } else {
+                successMsg.innerHTML = '<i class="ph-fill ph-check-circle text-lg"></i> Entry synced successfully!';
+            }
+            
+            successMsg.classList.remove('hidden');
+            form.reset();
+
+            setTimeout(() => {
+                successMsg.classList.add('hidden');
+            }, 4000);
+        });
+    </script>
+</body>
+</html>
